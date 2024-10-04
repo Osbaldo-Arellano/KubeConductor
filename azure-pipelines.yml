@@ -7,7 +7,7 @@ trigger:
 - main
 
 pool:
-  name: Azure Pipelines  # Use your self-hosted agent pool name here
+  name: SelfHostedUbuntu  # Use your self-hosted agent pool name here
 
 steps:
 - script: echo Hello, world!
