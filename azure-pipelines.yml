@@ -6,7 +6,7 @@ trigger:
       - main
 
 pool:
-  name: "YourSelfHostedAgentPoolName"
+  name: "SelfHostedUbuntu"
 
 variables:
   - group: Terraform-SP-Credentials # Reference to your secure Variable Group
