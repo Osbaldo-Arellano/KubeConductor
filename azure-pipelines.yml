@@ -1,19 +1,73 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
+# Updated azure-pipelines.yml
 
 trigger:
-- main
+  branches:
+    include:
+      - main
 
 pool:
-  name: SelfHostedUbuntu  # Use your self-hosted agent pool name here
+  name: "YourSelfHostedAgentPoolName"
 
-steps:
-- script: echo Hello, Isma!
-  displayName: 'Run a one-line script'
+variables:
+  - group: Terraform-SP-Credentials # Reference to your secure Variable Group
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+jobs:
+  - job: "Deploy_AKS"
+    displayName: "Provision AKS Cluster Using Terraform"
+    steps:
+      # Step 1: Checkout Code
+      - checkout: self
+
+      # Step 2: Install Terraform on the Agent
+      - script: |
+          sudo apt-get update && sudo apt-get install -y wget unzip
+          wget https://releases.hashicorp.com/terraform/1.5.3/terraform_1.5.3_linux_amd64.zip
+          unzip terraform_1.5.3_linux_amd64.zip
+          sudo mv terraform /usr/local/bin/
+        displayName: "Install Terraform"
+
+      # Step 3: Terraform Init
+      - script: |
+          terraform init
+        displayName: "Terraform Init"
+        env:
+          ARM_CLIENT_ID: $(appId)
+          ARM_CLIENT_SECRET: $(password)
+          ARM_TENANT_ID: $(tenant)
+          ARM_SUBSCRIPTION_ID: $(AZURE_SUBSCRIPTION_ID)
+
+      # Step 4: Terraform Plan
+      - script: |
+          terraform plan -out=tfplan
+        displayName: "Terraform Plan"
+        env:
+          ARM_CLIENT_ID: $(appId)
+          ARM_CLIENT_SECRET: $(password)
+          ARM_TENANT_ID: $(tenant)
+          ARM_SUBSCRIPTION_ID: $(AZURE_SUBSCRIPTION_ID)
+
+      # Step 5: Terraform Apply
+      - script: |
+          terraform apply -auto-approve tfplan
+        displayName: "Terraform Apply"
+        env:
+          ARM_CLIENT_ID: $(appId)
+          ARM_CLIENT_SECRET: $(password)
+          ARM_TENANT_ID: $(tenant)
+          ARM_SUBSCRIPTION_ID: $(AZURE_SUBSCRIPTION_ID)
+
+      # Step 6: Configure kubectl for the New AKS Cluster
+      - script: |
+          az aks get-credentials --resource-group $(resource_group_name) --name $(kubernetes_cluster_name)
+          kubectl get nodes
+        displayName: "Configure kubectl and Verify Cluster"
+
+      # Step 7: Log in to Azure using Service Principal (for `az aks browse` to work)
+      - script: |
+          az login --service-principal -u $(appId) -p $(password) --tenant $(tenant)
+        displayName: "Authenticate Azure CLI Using Service Principal"
+
+      # Step 8: Use `az aks browse` to Access the Dashboard
+      - script: |
+          az aks browse --resource-group $(resource_group_name) --name $(kubernetes_cluster_name)
+        displayName: "Browse AKS Dashboard"
