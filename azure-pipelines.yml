@@ -9,7 +9,7 @@ pool:
   name: "SelfHostedUbuntu"
 
 variables:
-  - group: Terraform-SP-Credentials # Reference to your secure Variable Group
+  - group: Terraform-SP-Credentials
 
 jobs:
   - job: "Deploy_AKS"
@@ -18,14 +18,10 @@ jobs:
       # Step 1: Checkout Code
       - checkout: self
 
-      # Step 2: Install Terraform on the Agent
+      # Step 2: Verify Terraform Version
       - script: |
-          sudo apt-get update && sudo apt-get install -y wget unzip
-          wget https://releases.hashicorp.com/terraform/1.5.3/terraform_1.5.3_linux_amd64.zip
-          unzip terraform_1.5.3_linux_amd64.zip
-          sudo mv -f terraform /usr/local/bin/terraform
-        displayName: "Install Terraform"
-
+          terraform --version
+        displayName: "Verify Installed Terraform Version"
 
       # Step 3: Terraform Init
       - script: |
