@@ -1,4 +1,4 @@
-# Updated azure-pipelines.yml
+# Updated azure-pipelines.yml with complete TF_VAR_ variable mapping
 
 trigger:
   branches:
@@ -6,7 +6,7 @@ trigger:
       - main
 
 pool:
-  name: "YourSelfHostedAgentPoolName"
+  name: "SelfHostedUbuntu"
 
 variables:
   - group: Terraform-SP-Credentials # Reference to your secure Variable Group
@@ -18,43 +18,55 @@ jobs:
       # Step 1: Checkout Code
       - checkout: self
 
-      # Step 2: Install Terraform on the Agent
+      # Step 2: Verify Terraform Version
       - script: |
-          sudo apt-get update && sudo apt-get install -y wget unzip
-          wget https://releases.hashicorp.com/terraform/1.5.3/terraform_1.5.3_linux_amd64.zip
-          unzip terraform_1.5.3_linux_amd64.zip
-          sudo mv terraform /usr/local/bin/
-        displayName: "Install Terraform"
+          terraform --version
+        displayName: "Verify Installed Terraform Version"
 
-      # Step 3: Terraform Init
+      # Step 3: Terraform Init (Set Working Directory and Pass All Variables with TF_VAR_ Prefix)
       - script: |
           terraform init
         displayName: "Terraform Init"
+        workingDirectory: $(System.DefaultWorkingDirectory)/terraform
         env:
           ARM_CLIENT_ID: $(appId)
           ARM_CLIENT_SECRET: $(password)
           ARM_TENANT_ID: $(tenant)
           ARM_SUBSCRIPTION_ID: $(AZURE_SUBSCRIPTION_ID)
+          TF_VAR_client_id: $(appId) # Client ID
+          TF_VAR_client_secret: $(password) # Client Secret
+          TF_VAR_tenant_id: $(tenant) # Tenant ID
+          TF_VAR_subscription_id: $(AZURE_SUBSCRIPTION_ID) # Subscription ID
 
-      # Step 4: Terraform Plan
+      # Step 4: Terraform Plan (Pass All Variables with TF_VAR_ Prefix)
       - script: |
           terraform plan -out=tfplan
         displayName: "Terraform Plan"
+        workingDirectory: $(System.DefaultWorkingDirectory)/terraform
         env:
           ARM_CLIENT_ID: $(appId)
           ARM_CLIENT_SECRET: $(password)
           ARM_TENANT_ID: $(tenant)
           ARM_SUBSCRIPTION_ID: $(AZURE_SUBSCRIPTION_ID)
+          TF_VAR_client_id: $(appId) # Client ID
+          TF_VAR_client_secret: $(password) # Client Secret
+          TF_VAR_tenant_id: $(tenant) # Tenant ID
+          TF_VAR_subscription_id: $(AZURE_SUBSCRIPTION_ID) # Subscription ID
 
-      # Step 5: Terraform Apply
+      # Step 5: Terraform Apply (Set Working Directory and Pass All Variables)
       - script: |
           terraform apply -auto-approve tfplan
         displayName: "Terraform Apply"
+        workingDirectory: $(System.DefaultWorkingDirectory)/terraform
         env:
           ARM_CLIENT_ID: $(appId)
           ARM_CLIENT_SECRET: $(password)
           ARM_TENANT_ID: $(tenant)
           ARM_SUBSCRIPTION_ID: $(AZURE_SUBSCRIPTION_ID)
+          TF_VAR_client_id: $(appId) # Client ID
+          TF_VAR_client_secret: $(password) # Client Secret
+          TF_VAR_tenant_id: $(tenant) # Tenant ID
+          TF_VAR_subscription_id: $(AZURE_SUBSCRIPTION_ID) # Subscription ID
 
       # Step 6: Configure kubectl for the New AKS Cluster
       - script: |
