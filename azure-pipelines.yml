@@ -9,7 +9,7 @@ pool:
   name: "SelfHostedUbuntu"
 
 variables:
-  - group: Terraform-SP-Credentials
+  - group: Terraform-SP-Credentials # Reference to your secure Variable Group
 
 jobs:
   - job: "Deploy_AKS"
@@ -18,35 +18,40 @@ jobs:
       # Step 1: Checkout Code
       - checkout: self
 
-      # Step 2: Verify Terraform Version
+      # Skip Step 2: Install Terraform (Already Installed)
+
+      # Step 2: Verify Terraform Version (Optional)
       - script: |
           terraform --version
         displayName: "Verify Installed Terraform Version"
 
-      # Step 3: Terraform Init
+      # Step 3: Terraform Init (Set Working Directory)
       - script: |
           terraform init
         displayName: "Terraform Init"
+        workingDirectory: $(System.DefaultWorkingDirectory)/terraform
         env:
           ARM_CLIENT_ID: $(appId)
           ARM_CLIENT_SECRET: $(password)
           ARM_TENANT_ID: $(tenant)
           ARM_SUBSCRIPTION_ID: $(AZURE_SUBSCRIPTION_ID)
 
-      # Step 4: Terraform Plan
+      # Step 4: Terraform Plan (Set Working Directory)
       - script: |
           terraform plan -out=tfplan
         displayName: "Terraform Plan"
+        workingDirectory: $(System.DefaultWorkingDirectory)/terraform
         env:
           ARM_CLIENT_ID: $(appId)
           ARM_CLIENT_SECRET: $(password)
           ARM_TENANT_ID: $(tenant)
           ARM_SUBSCRIPTION_ID: $(AZURE_SUBSCRIPTION_ID)
 
-      # Step 5: Terraform Apply
+      # Step 5: Terraform Apply (Set Working Directory)
       - script: |
           terraform apply -auto-approve tfplan
         displayName: "Terraform Apply"
+        workingDirectory: $(System.DefaultWorkingDirectory)/terraform
         env:
           ARM_CLIENT_ID: $(appId)
           ARM_CLIENT_SECRET: $(password)
