@@ -9,7 +9,7 @@ pool:
   name: "SelfHostedUbuntu"
 
 variables:
-  - group: Terraform-SP-Credentials # Reference to your secure Variable Group
+  - group: Terraform-SP-Credentials
 
 jobs:
   - job: "Deploy_AKS"
@@ -48,11 +48,10 @@ jobs:
           ARM_CLIENT_SECRET: $(password)
           ARM_TENANT_ID: $(tenant)
           ARM_SUBSCRIPTION_ID: $(AZURE_SUBSCRIPTION_ID)
-          TF_VAR_client_id: $(appId) # Client ID
-          TF_VAR_client_secret: $(password) # Client Secret
-          TF_VAR_tenant_id: $(tenant) # Tenant ID
-          TF_VAR_subscription_id: $(AZURE_SUBSCRIPTION_ID) # Subscription ID
-
+          TF_VAR_client_id: $(appId)
+          TF_VAR_client_secret: $(password)
+          TF_VAR_tenant_id: $(tenant)
+          TF_VAR_subscription_id: $(AZURE_SUBSCRIPTION_ID)
       # Step 5: Terraform Apply (Set Working Directory and Pass All Variables)
       - script: |
           terraform apply -auto-approve tfplan
@@ -63,10 +62,10 @@ jobs:
           ARM_CLIENT_SECRET: $(password)
           ARM_TENANT_ID: $(tenant)
           ARM_SUBSCRIPTION_ID: $(AZURE_SUBSCRIPTION_ID)
-          TF_VAR_client_id: $(appId) # Client ID
-          TF_VAR_client_secret: $(password) # Client Secret
-          TF_VAR_tenant_id: $(tenant) # Tenant ID
-          TF_VAR_subscription_id: $(AZURE_SUBSCRIPTION_ID) # Subscription ID
+          TF_VAR_client_id: $(appId)
+          TF_VAR_client_secret: $(password)
+          TF_VAR_tenant_id: $(tenant)
+          TF_VAR_subscription_id: $(AZURE_SUBSCRIPTION_ID)
 
       # Step 6: Configure kubectl for the New AKS Cluster
       - script: |
@@ -74,7 +73,7 @@ jobs:
           kubectl get nodes
         displayName: "Configure kubectl and Verify Cluster"
 
-      # Step 7: Log in to Azure using Service Principal (for `az aks browse` to work)
+      # Step 7: Log in to Azure using Service Principal
       - script: |
           az login --service-principal -u $(appId) -p $(password) --tenant $(tenant)
         displayName: "Authenticate Azure CLI Using Service Principal"
