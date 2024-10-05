@@ -10,7 +10,7 @@ pool:
   name: SelfHostedUbuntu  # Use your self-hosted agent pool name here
 
 steps:
-- script: echo Hello, world!
+- script: echo Hello, Isma!
   displayName: 'Run a one-line script'
 
 - script: |
