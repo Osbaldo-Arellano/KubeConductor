@@ -1,4 +1,4 @@
-# Updated azure-pipelines.yml
+# Updated azure-pipelines.yml with TF_VAR_ prefix
 
 trigger:
   branches:
@@ -18,14 +18,12 @@ jobs:
       # Step 1: Checkout Code
       - checkout: self
 
-      # Skip Step 2: Install Terraform (Already Installed)
-
-      # Step 2: Verify Terraform Version (Optional)
+      # Step 2: Verify Terraform Version
       - script: |
           terraform --version
         displayName: "Verify Installed Terraform Version"
 
-      # Step 3: Terraform Init (Set Working Directory and Add subscription_id)
+      # Step 3: Terraform Init (Set Working Directory and Add TF_VAR_subscription_id)
       - script: |
           terraform init
         displayName: "Terraform Init"
@@ -35,9 +33,9 @@ jobs:
           ARM_CLIENT_SECRET: $(password)
           ARM_TENANT_ID: $(tenant)
           ARM_SUBSCRIPTION_ID: $(AZURE_SUBSCRIPTION_ID)
-          subscription_id: $(AZURE_SUBSCRIPTION_ID)  # Pass subscription_id variable
+          TF_VAR_subscription_id: $(AZURE_SUBSCRIPTION_ID)  # Use TF_VAR_ prefix
 
-      # Step 4: Terraform Plan (Set Working Directory and Add subscription_id)
+      # Step 4: Terraform Plan (Set Working Directory and Add TF_VAR_subscription_id)
       - script: |
           terraform plan -out=tfplan
         displayName: "Terraform Plan"
@@ -47,8 +45,7 @@ jobs:
           ARM_CLIENT_SECRET: $(password)
           ARM_TENANT_ID: $(tenant)
           ARM_SUBSCRIPTION_ID: $(AZURE_SUBSCRIPTION_ID)
-          subscription_id: $(AZURE_SUBSCRIPTION_ID)  # Pass subscription_id variable
-
+          TF_VAR_subscription_id: $(AZURE_SUBSCRIPTION_ID)  # Use TF_VAR_ prefix
 
       # Step 5: Terraform Apply (Set Working Directory)
       - script: |
