@@ -66,19 +66,3 @@ jobs:
           TF_VAR_client_secret: $(password)
           TF_VAR_tenant_id: $(tenant)
           TF_VAR_subscription_id: $(AZURE_SUBSCRIPTION_ID)
-
-      # Step 6: Configure kubectl for the New AKS Cluster
-      - script: |
-          az aks get-credentials --resource-group $(resource_group_name) --name $(kubernetes_cluster_name)
-          kubectl get nodes
-        displayName: "Configure kubectl and Verify Cluster"
-
-      # Step 7: Log in to Azure using Service Principal
-      - script: |
-          az login --service-principal -u $(appId) -p $(password) --tenant $(tenant)
-        displayName: "Authenticate Azure CLI Using Service Principal"
-
-      # Step 8: Use `az aks browse` to Access the Dashboard
-      - script: |
-          az aks browse --resource-group $(resource_group_name) --name $(kubernetes_cluster_name)
-        displayName: "Browse AKS Dashboard"
