@@ -25,7 +25,7 @@ jobs:
           terraform --version
         displayName: "Verify Installed Terraform Version"
 
-      # Step 3: Terraform Init (Set Working Directory)
+      # Step 3: Terraform Init (Set Working Directory and Add subscription_id)
       - script: |
           terraform init
         displayName: "Terraform Init"
@@ -35,8 +35,9 @@ jobs:
           ARM_CLIENT_SECRET: $(password)
           ARM_TENANT_ID: $(tenant)
           ARM_SUBSCRIPTION_ID: $(AZURE_SUBSCRIPTION_ID)
+          subscription_id: $(AZURE_SUBSCRIPTION_ID)  # Pass subscription_id variable
 
-      # Step 4: Terraform Plan (Set Working Directory)
+      # Step 4: Terraform Plan (Set Working Directory and Add subscription_id)
       - script: |
           terraform plan -out=tfplan
         displayName: "Terraform Plan"
@@ -46,6 +47,8 @@ jobs:
           ARM_CLIENT_SECRET: $(password)
           ARM_TENANT_ID: $(tenant)
           ARM_SUBSCRIPTION_ID: $(AZURE_SUBSCRIPTION_ID)
+          subscription_id: $(AZURE_SUBSCRIPTION_ID)  # Pass subscription_id variable
+
 
       # Step 5: Terraform Apply (Set Working Directory)
       - script: |
